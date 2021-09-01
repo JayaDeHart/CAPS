@@ -1,33 +1,51 @@
-const events = require("./events");
+//initialize socket.io
+require("dotenv").config();
+const port = process.env.PORT
+const io = require('socket.io')(port);
+//create CAPS namespace
+const caps = io.of("/caps");
+require("./driver/driver")
+require("./vendor1/vendor")
 
-require("./vendor");
-require("./driver")
+caps.on("connection", (socket) => {
 
-events.on("pickup", (order) => {
-    const output = {
-        event: "pickup",
-        time: new Date(),
-        payload: order
-    }
-    console.log(`EVENT: ${JSON.stringify(output, null, 2)}`);
-    events.emit("pickup-driver", order)
+    //basically saying when a socket sends this:
+    socket.on("pickup", (order) => {
+        const output = {
+            event: "pickup",
+            time: new Date(),
+            payload: order
+        }
+        console.log(`EVENT: ${JSON.stringify(output, null, 2)}`);
+        socket.join(`${order.store}`)
+        caps.emit("pickup", order)
+    })
+
+    socket.on("in-transit", (order) => {
+        const output = {
+            event: "in-transit",
+            time: new Date(),
+            payload: order
+        }
+        console.log(`EVENT: ${JSON.stringify(output, null, 2)}`);
+
+        caps.to(`${order.store}`).emit("in-transit", order)
+    })
+
+    socket.on("delivered", (order) => {
+        const output = {
+            event: "delivered",
+            time: new Date(),
+            payload: order
+        }
+        console.log(`EVENT: ${JSON.stringify(output, null, 2)}`);
+
+        caps.to(`${order.store}`).emit("delivered", order)
+    })
+
 })
 
-events.on("in-transit", (order) => {
-    const output = {
-        event: "in-transit",
-        time: new Date(),
-        payload: order
-    }
-    console.log(`EVENT: ${JSON.stringify(output, null, 2)}`);
-})
 
-events.on("delivered", (order) => {
-    const output = {
-        event: "delivered",
-        time: new Date(),
-        payload: order
-    }
-    console.log(`EVENT: ${JSON.stringify(output, null, 2)}`);
-    events.emit("delivered-vendor", order)
-})
+
+
+
