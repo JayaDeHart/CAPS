@@ -23,16 +23,14 @@ function generateOrder() {
 setInterval(() => {
     const order = generateOrder();
     capsConnection.emit("pickup", order)
+
 }, 5000)
 
-capsConnection.on("connection", (socket)=>{
-    
-    
-
-    socket.on("delivered",(order)=>{
-        console.log(`Thank you for delivering ${order.orderID} to ${order.store}`)
-    })
+capsConnection.on("delivered", (order)=>{
+    console.log(`Thank you for delivering ${order.orderID} to ${order.store}`)
 })
+        
+
 
 
 

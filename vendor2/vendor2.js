@@ -6,14 +6,6 @@ const io = require('socket.io-client');
 
 const capsConnection = io.connect(`${port}/caps`)
 
-
-setInterval(() => {
-    const order = generateOrder();
-    capsConnection.emit("pickup", order)
-}, 5000)
-
-
-
 function generateOrder() {
     return {
         store: process.env.STORE2_NAME,
@@ -24,11 +16,21 @@ function generateOrder() {
 }
 
 
-capsConnection.on("connection", (socket)=>{
-    socket.on("delivered",(order)=>{
-        console.log(`Thank you for delivering ${order.orderID} to ${order.store}`)
-    })
+//need to get the socket sending the order to subscribe to the storeName room
+//but I can't put it in the capsConnection.on because then nothing ever starts
+
+
+setInterval(() => {
+    const order = generateOrder();
+    capsConnection.emit("pickup", order)
+
+}, 5000)
+
+capsConnection.on("delivered", (order)=>{
+    console.log(`Thank you for delivering ${order.orderID} to ${order.store}`)
 })
+        
+
 
 
 

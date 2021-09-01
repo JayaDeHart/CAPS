@@ -6,6 +6,7 @@ const io = require('socket.io')(port);
 const caps = io.of("/caps");
 require("./driver/driver")
 require("./vendor1/vendor")
+require("./vendor2/vendor2")
 
 caps.on("connection", (socket) => {
 
